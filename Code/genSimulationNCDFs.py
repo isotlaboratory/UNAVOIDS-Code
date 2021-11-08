@@ -57,20 +57,22 @@ def getNCDF(X, p, index):
 CompAlgorithms = False
 debug = True
 ncpus = 4
-L = 100 #number of beta levels (I think)
+L = 100 #number of beta levels
 
 NCDFfolder = "SimNCDFs/"
-PDFfolder = "neg5pdfNCDFsSVG/" #"pdfNCDFsSVG/"
+PDFfolder = "pdfNCDFsSVG/"
+STEP = 10
+SUBSET = True
 
-Features =[2, 4, 8, 16, 32, 64, 128, 256, 512]
-Norms = [0.0078125, 0.0078125,0.0625,0.125,0.25,0.5, 1, 2, 4, np.inf]
+Features = [2, 4, 8, 16, 32, 64, 128, 256, 512]
+Norms = [0.0078125,0.015625,0.03125,0.0625,0.125,0.25,0.5, 1, 2, 4, np.inf]
 
 
 if __name__ == '__main__':
 
     X_all = load("simData.joblib")
     Y = np.zeros((X_all.shape[0],))
-    Y[-3:] = 1 #last thre sampls are outliers
+    Y[-3:] = 1 #last three samples are outliers
 
     for n_feats in Features:
 
@@ -80,6 +82,8 @@ if __name__ == '__main__':
             
         for p_i, p in enumerate(Norms):
             
+            print(n_feats, p)
+
             desc2 = str(p_i)+"_"
             
             #catch overflows, underflows and invalid values and invalid division 
@@ -96,21 +100,31 @@ if __name__ == '__main__':
             NCDFs = np.reshape(result, (X.shape[0],X.shape[0]))
             
             #np.save(NCDFfolder+desc1+desc2+"NCDFs.npy",NCDFs)
-                
+            
             fig = plt.figure()
             ax = fig.add_subplot(111)
+
+            if STEP != None and STEP > 0 and STEP < NCDFs.shape[1]:
+                if (NCDFs.shape[1] - 1) % STEP == 0:
+                    NCDFs = NCDFs[:,::STEP]
+                else:
+                    NCDFs = np.concatenate((NCDFs[:,::STEP], NCDFs[:,-1].reshape(-1,1)), axis=1)
+
+                if SUBSET == True:
+                    NCDFs = np.concatenate((NCDFs[:-3:STEP,:], NCDFs[-3:,:].reshape(3,-1)), axis=0)
 
             for i in range(NCDFs.shape[0]):
                 NCDFxi = np.array((NCDFs[i,:]), dtype=float)
                 
-                if i == 564:
-                    ax.step(NCDFxi,np.arange(565)/565, lw=0.25, color="red",  alpha=1) #outlier 
-                elif i == 563:
-                    ax.step(NCDFxi,np.arange(565)/565, lw=0.25, color="green",  alpha=1) #outlier
-                elif i == 562:
-                    ax.step(NCDFxi,np.arange(565)/565, lw=0.25, color="blue",  alpha=1) #outlier
+                res = NCDFs.shape[1]
+                if i == NCDFs.shape[0] - 1:
+                    ax.step(NCDFxi,np.arange(res)/res, lw=0.25, color="red",  alpha=1) #outlier 
+                elif i == NCDFs.shape[0] - 2:
+                    ax.step(NCDFxi,np.arange(res)/res, lw=0.25, color="green",  alpha=1) #outlier
+                elif i == NCDFs.shape[0] - 3:
+                    ax.step(NCDFxi,np.arange(res)/res, lw=0.25, color="blue",  alpha=1) #outlier
                 else:
-                    ax.step(NCDFxi,np.arange(565)/565, lw=0.05, color="grey",  alpha=1) #regular datum 
+                    ax.step(NCDFxi,np.arange(res)/res, lw=0.05, color="grey",  alpha=1) #regular datum 
                 
                 xleft, xright = ax.get_xlim()
                 ybottom, ytop = ax.get_ylim()

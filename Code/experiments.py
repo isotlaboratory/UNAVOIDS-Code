@@ -46,7 +46,7 @@ def getNCDF(X, p, index):
             NCDFxi = np.sort(NCDFxi, axis=1)
 
         except Warning as e:
-            print("Warning: "+str(e)+" -> switching to from numpy to Decimal library implementation, expect speed decrease.\n\tAny further warnings mean results may be incorrect.")
+            print("Warning: "+str(e)+" \n\tSwitching from numpy to Decimal library implementation, expect speed decrease.\n\tAny other warnings indicates results may be incorrect.")
             
             NCDFxi = []  # array to hold NCDF
             
@@ -128,65 +128,45 @@ def getBetasHist(NCDFs_L, BetaSorted, obser):
     n = NCDFs_L.shape[0] #number of NCDFs
     L = NCDFs_L.shape[1] #number of Betas
 
-    beta_max1 = 0 #the highest score of the beta levels
-    beta_max2 = 0 #the highest score of the beta levels
+    beta_max1 = 0 #the highest score of the beta levels, 1st method
+    beta_max2 = 0 #the highest score of the beta levels, 2nd method
 
     n_bins = n * 0.05
     step = 1/n_bins
+    edges_s = np.arange(0,1.01,step)
     
     for col in range(1, L-1):
         obser_intercept = NCDFs_L[obser,col] #intercept of observation
         hrzntl = NCDFs_L[:,col]              #current beta level
 
         #center obeservation intercept in bin with width 0.05
-        lb = obser_intercept - 0.025       
-        ub = obser_intercept + 0.025
+        if obser_intercept < step: #avoid underflow errors
+            n_le = 0
+        else:
+            n_le = int(obser_intercept/step)
 
-        #create the rest of the bins between 0 and 1 with widths 0.05, edge bins may be cut off by subceeding 0 or exceeding 1
-        edges = [0,1.01]
-        n_le = 1 #number of edges below observation
-        while True:
-            if lb <= 0:
-                break 
-            else:
-                n_le += 1
-                edges.append(lb)
-                lb -= step
+        edges = edges_s + ((obser_intercept - edges_s[n_le]) - (step/2))
 
-        while True:
-            if ub >= 1:
-                break 
-            else:
-                edges.append(ub)
-                ub += step
-        edges.sort() #sort edges
+        if edges[-1] > 1:
+           edges = np.append([0.0], edges)
+           edges[-1] = 1.01
+           n_le += 1
+        elif edges[-1] < 1:
+           edges = np.append(edges, [1.01])
+           edges[0] = 0.0
 
-        #create histogram and get bin counts
-        hist = np.zeros((len(edges)-1,1))
-        cur_count = 0
-        cur_edge = 1
-        
-        for intercept in BetaSorted[:,col]:
-            while True:
-                if intercept <= edges[cur_edge]: #if current sample is less then cur edge, add to cur bin
-                    hist[cur_edge-1] += 1 #increment bin counter
-                    break #break when you find the sample's bin
-                else: #else look at next edege/bin
-                    cur_edge +=1
+        observed_bins = np.where(BetaSorted[:,col] > edges[1], np.minimum(((BetaSorted[:,col]-edges[1])/step).astype('int') + 1, len(edges)-1), 0)
+        u, c = np.unique(observed_bins, return_counts=True)
+        hist = np.zeros((len(edges)-1,))
+        hist[u] = c
 
-        #determine score
-        score = 0 
-        for i in hist:
-            if (hist[n_le-1] < i[0]):
-               score += i[0]
-        beta1 = score/n
+        beta1 = np.sum(np.where(hist > hist[n_le], hist, 0))/n
 
-        #prob, edges = np.histogram(hist, bins=5, density=True)
         counts, edges = np.histogram(hist, bins=5)
         prob = counts/hist.shape[0]
         edges[-1] = edges[-1] + 1
         beta2 = 1 - prob[np.digitize(hist[n_le-1], bins=edges)-1][0]
-        
+
         #compare with best score so far
         if beta1 > beta_max1:
             beta_max1 = beta1
