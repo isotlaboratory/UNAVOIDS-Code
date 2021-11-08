@@ -150,7 +150,6 @@ def getBetaFractions(NCDFs_L, BetaSorted, BetaRanks, fraction_WSS, index):
     
     return score
 
-    return k_gaps
 
 def getBetasHist(NCDFs_L, BetaSorted, index):
 
@@ -173,59 +172,41 @@ def getBetasHist(NCDFs_L, BetaSorted, index):
 
     n_bins = n * 0.05
     step = 1/n_bins
+    edges_s = np.arange(0,1.01,step)
     
     for col in range(1, L-1):
         obser_intercept = NCDFs_L[index,col] #intercept of observation
         hrzntl = NCDFs_L[:,col]              #current beta level
 
         #center obeservation intercept in bin with width 0.05
-        lb = obser_intercept - 0.025       
-        ub = obser_intercept + 0.025
+        if obser_intercept < step: #avoid underflow errors
+            n_le = 0
+        else:
+            n_le = int(obser_intercept/step)
 
-        #create the rest of the bins between 0 and 1 with widths 0.05, edge bins may be cut off by subceeding 0 or exceeding 1
-        edges = [0,1.01]
-        n_le = 1 #number of edges below observation
-        while True:
-            if lb <= 0:
-                break 
-            else:
-                n_le += 1
-                edges.append(lb)
-                lb -= step
+        edges = edges_s + ((obser_intercept - edges_s[n_le]) - (step/2))
 
-        while True:
-            if ub >= 1:
-                break 
-            else:
-                edges.append(ub)
-                ub += step
-        edges.sort() #sort edges
+        if edges[-1] > 1:
+           edges = np.append([0.0], edges)
+           edges[-1] = 1.01
+           n_le += 1
+        elif edges[-1] < 1:
+           edges = np.append(edges, [1.01])
+           edges[0] = 0.0
 
-        #create histogram and get bin counts
-        hist = np.zeros((len(edges)-1,1))
-        cur_count = 0
-        cur_edge = 1
-        
-        for intercept in BetaSorted[:,col]:
-            while True:
-                if intercept <= edges[cur_edge]: #if current sample is less then cur edge, add to cur bin
-                    hist[cur_edge-1] += 1 #increment bin counter
-                    break #break when you find the sample's bin
-                else: #else look at next edege/bin
-                    cur_edge +=1
+        observed_bins = np.where(BetaSorted[:,col] > edges[1], np.minimum(((BetaSorted[:,col]-edges[1])/step).astype('int') + 1, len(edges)-1), 0)
+        u, c = np.unique(observed_bins, return_counts=True)
+        hist = np.zeros((len(edges)-1,))
+        hist[u] = c
 
-        #determine score
-        score = 0 
-        for i in hist:
-            if (hist[n_le-1] < i[0]):
-                score += i[0]
-        beta = score/n
-        
+        beta = np.sum(np.where(hist > hist[n_le], hist, 0))/n
+
         #compare with best score so far
         if beta > beta_max:
             beta_max = beta
 
     return np.array(beta_max).reshape((1,1))
+
 
 def unavoidsScore(X, precomputed=False, p=0.0625, returnNCDFs=True, method="fractions", r=0.01,  L=100, ncpus=4):
 

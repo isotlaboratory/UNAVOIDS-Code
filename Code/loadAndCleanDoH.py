@@ -17,8 +17,8 @@ X = X[:,5:-1] #remove first four columns and last column
 Y = np.append(np.zeros((X_benign.shape[0],1)), np.ones((X_malicious.shape[0], 1)), axis=0) #create label vector
 
 #convert timestamps to datetime objects
-for x in X:
-    x[0] = datetime.strptime(x[0], "%Y-%m-%d %H:%M:%S")
+for x in Xid:
+    x[-1] = datetime.strptime(x[-1], "%Y-%m-%d %H:%M:%S")
 
 #sort by time stamp
 sortIndeces = np.argsort(Xid[:,-1])

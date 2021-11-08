@@ -25,8 +25,9 @@ for i, pi in enumerate(Pis):
     n_1 = round((pi/(1-pi))*n_0) #number of malicious for desired prevalence
 
     Y_1_inds_samp = np.reshape(np.random.choice(Y_1_inds, size=n_1, replace=False), (n_1,)) #sample malicious
-    pi_inds = np.random.shuffle(np.append(Y_0_inds, Y_1_inds_samp)) #append and shuffle
-    
-    np.save(Pisfld+"Pis_"+str(i), pi_inds)
+    Y_all = np.append(Y_0_inds, Y_1_inds_samp)
+    np.random.shuffle(Y_all) #append and shuffle
 
-    print(i, round(Y_1_inds_samp.shape[0]/(pi_inds.shape[0]), 5) )
+    np.save(Pisfld+"Pis_"+str(i), Y_all)
+
+    print(i, round(Y_1_inds_samp.shape[0]/(Y_all.shape[0]), 5) )
