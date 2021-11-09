@@ -10,10 +10,6 @@ import warnings
 import time
 import sys
 from sklearn.preprocessing import MinMaxScaler
-from sklearn.metrics import roc_auc_score
-from sklearn.neighbors import LocalOutlierFactor
-from pyod.models.abod import ABOD
-from pyod.models.iforest import IForest
 
 
 def getNCDF(X, p, index):
@@ -61,7 +57,7 @@ def getNCDF(X, p, index):
                 else:
                     NCDFxi.append(Decimal(( np.sum(np.abs(X[index,:]-X[I,:])**p)))**Decimal(1.0/float(p))) #/ (d**(1.0/p)) #calculate p-norm of samples X[i] and X[j != i] 
 
-            #normalize by max volumne
+            #normalize by max volume
             maxNorm = max(NCDFxi)
             if maxNorm > 0:
                 for I in range(n):
@@ -109,9 +105,9 @@ def getBetaFractions(NCDFs_L, BetaSorted, BetaRanks, fraction_WSS, index):
 
     Parameters:
     NCDFs_L (n x L numpy array): an array containing the intercepts for n NCDFs at L beta levels
-    BetaSorted (n x L numpy array): the same as NCDFs_L but the intercepts are sorted along the L beta levels (columize sort of NCDFs_L) 
+    BetaSorted (n x L numpy array): the same as NCDFs_L but the intercepts are sorted along the L beta levels (columnwise sort of NCDFs_L) 
     BetaRanks (n x L numpy array): the same as NCDFs_L but the value at (i,j) is replaced with the rank of NCDFs_L[i,j] on a given beta horizontal
-    Fractions_WSS: the number of nearest intercepts to be encompossased by the gap whose size will be the score for the given beta and NCDF's intercept
+    Fractions_WSS: the number of nearest intercepts to be encompassed by the gap whose size will be the score for the given beta and NCDF's intercept
     index (int): the index of the NCDF in X which we are finding the score for
 
     Returns:
@@ -126,7 +122,7 @@ def getBetaFractions(NCDFs_L, BetaSorted, BetaRanks, fraction_WSS, index):
     #for each column
     for col in range(L):
         obser_intercept = NCDFs_L[index,col] #get intercept of this NCDF
-        obser_rank = BetaRanks[index,col] #get rank of inercept for this NCDF
+        obser_rank = BetaRanks[index,col] #get rank of intercept for this NCDF
 
         #get nearest(by rank) fraction_WSS * 2 intercepts
         if obser_rank - fraction_WSS < 0:
@@ -145,7 +141,7 @@ def getBetaFractions(NCDFs_L, BetaSorted, BetaRanks, fraction_WSS, index):
         #get gaps for each Fraction
         k_gaps[col,0] = gaps[fraction_WSS]
 
-    #get largest gap metrix
+    #get largest gap matrix
     score = np.amax(k_gaps,axis=0)
     
     return score
@@ -158,7 +154,7 @@ def getBetasHist(NCDFs_L, BetaSorted, index):
 
     Parameters:
     NCDFs_L (n x L numpy array): an array containing the intercepts for n NCDFs at L beta levels
-    BetaSorted (n x L numpy array): the same as NCDFs_L but the intercepts are sorted along the L beta levels (columize sort of NCDFs_L) 
+    BetaSorted (n x L numpy array): the same as NCDFs_L but the intercepts are sorted along the L beta levels (columnwise sort of NCDFs_L) 
     index (int): the index of the NCDF in X which we are finding the score for
 
     Returns:
@@ -173,12 +169,16 @@ def getBetasHist(NCDFs_L, BetaSorted, index):
     n_bins = n * 0.05
     step = 1/n_bins
     edges_s = np.arange(0,1.01,step)
+
+    if type(NCDFs_L[0,0]) == Decimal:
+        step = Decimal(step)
+        edges_s = np.array([Decimal(i) for i in edges_s])
     
     for col in range(1, L-1):
         obser_intercept = NCDFs_L[index,col] #intercept of observation
         hrzntl = NCDFs_L[:,col]              #current beta level
 
-        #center obeservation intercept in bin with width 0.05
+        #center observation intercept in bin with width 0.05
         if obser_intercept < step: #avoid underflow errors
             n_le = 0
         else:
@@ -215,11 +215,11 @@ def unavoidsScore(X, precomputed=False, p=0.0625, returnNCDFs=True, method="frac
 
     Parameters:
     X (n x m numpy array): an array containing n samples and m feature values
-    precomputed (boolena): if True, X is assumed to be the NCDF array returnd by getAllNCDFs
+    precomputed (boolena): if True, X is assumed to be the NCDF array returned by getAllNCDFs
     p (float): the norm to use when calculating the distance between points
     returnNCDFs(boolean): if True, NCDF array is returned along with outlier scores
-    method (string): specifies which method to use for ccalculating outlier scores; either "fractions" or "histogram"
-    r: percentage of nearest intercepts to be encompossased by the gap whose size will be the score for the given beta and NCDF's intercept when using the "fractions" method
+    method (string): specifies which method to use for calculating outlier scores; either "fractions" or "histogram"
+    r: percentage of nearest intercepts to be encompassed by the gap whose size will be the score for the given beta and NCDF's intercept when using the "fractions" method
     L (int): the number of beta levels to use
     ncpus (int): the number of parallel processes
 
@@ -230,11 +230,13 @@ def unavoidsScore(X, precomputed=False, p=0.0625, returnNCDFs=True, method="frac
 
     if precomputed == False:
         NCDFs = getAllNCDFs(X, p)
+    else:
+        NCDFs = X
 
     WSS = NCDFs.shape[0]
 
     Lindexes = np.unique(np.append(np.floor(np.arange(0,L)*(WSS/L)), WSS-1).astype(int)) #indicies of beta levels 
-    Fractions_WSS = int((r * WSS))  #convert percentage to proption of window size
+    Fractions_WSS = int((r * WSS))  #convert percentage to portion of window size
 
     NCDFs_L = NCDFs[:, Lindexes] #for current norm, grab all NCDF intercepts with all L beta levels 
     BetaSorted = np.sort(NCDFs_L, axis=0) #sort intercepts along beta level
