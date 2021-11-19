@@ -24,6 +24,9 @@
 ## References ##
 W. A. Yousef, I. Traoré and W. Briguglio, "UN-AVOIDS: Unsupervised and Nonparametric Approach for Visualizing Outliers and Invariant Detection Scoring," in IEEE Transactions on Information Forensics and Security, vol. 16, pp. 5195-5210, 2021, doi: 10.1109/TIFS.2021.3125608.
 
+## This repo as a capsul on CodeOcean ##
+[https://codeocean.com/capsule/2122579/tree/v1](https://codeocean.com/capsule/2122579/tree/v1)
+
 ## Citation ##
 Please, cite this work as:
 
