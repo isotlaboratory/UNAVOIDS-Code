@@ -1,4 +1,6 @@
-# Code Summary #
+# UNAVOIDS: Unsupervised and Nonparametric Approach for Visualizing Outliers and Invariant Detection Scoring #
+
+## Code Summary ##
 `aggregate.py`: this script aggregates the scores outputted by `expriments.py`
 
 `experiments.py`: This script runs UNAVIODS and some comparison algorithms across a grid of parameters on a window specified by a command line argument.
@@ -19,10 +21,10 @@
 
 `main.py`: basic usuage example of the unavioids library
 
-# References #
+## References ##
 W. A. Yousef, I. Traoré and W. Briguglio, "UN-AVOIDS: Unsupervised and Nonparametric Approach for Visualizing Outliers and Invariant Detection Scoring," in IEEE Transactions on Information Forensics and Security, vol. 16, pp. 5195-5210, 2021, doi: 10.1109/TIFS.2021.3125608.
 
-# Citation #
+## Citation ##
 Please, cite this work as:
 
 ```
