@@ -32,7 +32,6 @@ Please, cite this work as:
   title={UN-AVOIDS: Unsupervised and Nonparametric Approach for Visualizing Outliers and Invariant Detection Scoring}, 
   year={2021},
   volume={16},
-  number={},
   pages={5195-5210},
   doi={10.1109/TIFS.2021.3125608}}
 ```
