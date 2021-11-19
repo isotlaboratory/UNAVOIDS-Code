@@ -20,19 +20,19 @@
 `main.py`: basic usuage example of the unavioids library
 
 # References #
-Yousef, W. A., Traore, I., & Briguglio, W. (2021), "UN-AVOIDS: unsupervised and nonparametric
-approach for visualizing outliers and invariant detection scoring", [arXiv Preprint, arXiv:]() .
+W. A. Yousef, I. Traoré and W. Briguglio, "UN-AVOIDS: Unsupervised and Nonparametric Approach for Visualizing Outliers and Invariant Detection Scoring," in IEEE Transactions on Information Forensics and Security, vol. 16, pp. 5195-5210, 2021, doi: 10.1109/TIFS.2021.3125608.
 
 # Citation #
 Please, cite this work as:
 
 ```
-@Article{Yousef2021UNAVOIDS,
-  author =       {Waleed A. Yousef and Issa Traore and William Briguglio},
-  title =        {UN-AVOIDS: Unsupervised and Nonparametric Approach for Visualizing Outliers and
-                  Invariant Detection Scoring},
-  journal =      {arXiv Preprint},
-  year =         2021,
-  primaryclass = {cs.LG}
-}
+@ARTICLE{Yousef2021UNAVOIDS,
+  author={Yousef, Waleed A. and Traoré, Issa and Briguglio, William},
+  journal={IEEE Transactions on Information Forensics and Security}, 
+  title={UN-AVOIDS: Unsupervised and Nonparametric Approach for Visualizing Outliers and Invariant Detection Scoring}, 
+  year={2021},
+  volume={16},
+  number={},
+  pages={5195-5210},
+  doi={10.1109/TIFS.2021.3125608}}
 ```
