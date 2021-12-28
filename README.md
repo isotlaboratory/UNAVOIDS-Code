@@ -21,6 +21,11 @@
 
 `main.py`: basic usuage example of the unavioids library
 
+## Patent ##
+W. A. Yousef, I. Traore, and W. Briguglio: "Unsupervised and nonparametric
+approach for visualizing outliers and invariant detection scoring", US Patent
+63168686 (pending).
+
 ## References ##
 W. A. Yousef, I. Traoré and W. Briguglio, "UN-AVOIDS: Unsupervised and Nonparametric Approach for Visualizing Outliers and Invariant Detection Scoring," in IEEE Transactions on Information Forensics and Security, vol. 16, pp. 5195-5210, 2021, doi: 10.1109/TIFS.2021.3125608.
 
