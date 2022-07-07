@@ -166,7 +166,7 @@ def getBetasHist(NCDFs_L, BetaSorted, index):
 
     beta_max = 0 #the highest score of the beta levels
 
-    n_bins = n * 0.05
+    n_bins = int(n * 0.05)
     step = 1/n_bins
     edges_s = np.arange(0,1.01,step)
 
@@ -178,7 +178,7 @@ def getBetasHist(NCDFs_L, BetaSorted, index):
         obser_intercept = NCDFs_L[index,col] #intercept of observation
         hrzntl = NCDFs_L[:,col]              #current beta level
 
-        #center observation intercept in bin with width 0.05
+        #center observation intercept in bin with width step
         if obser_intercept < step: #avoid underflow errors
             n_le = 0
         else:
@@ -194,7 +194,7 @@ def getBetasHist(NCDFs_L, BetaSorted, index):
            edges = np.append(edges, [1.01])
            edges[0] = 0.0
 
-        observed_bins = np.where(BetaSorted[:,col] > edges[1], np.minimum(((BetaSorted[:,col]-edges[1])/step).astype('int') + 1, len(edges)-1), 0)
+        observed_bins = np.where(BetaSorted[:,col] > edges[1], np.minimum(((BetaSorted[:,col]-edges[1])/step).astype('int') + 1, len(edges)-2), 0)
         u, c = np.unique(observed_bins, return_counts=True)
         hist = np.zeros((len(edges)-1,))
         hist[u] = c
