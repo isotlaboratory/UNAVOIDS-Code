@@ -32,6 +32,9 @@ W. A. Yousef, I. Traoré and W. Briguglio, "UN-AVOIDS: Unsupervised and Nonparam
 ## This repo as a capsul on CodeOcean ##
 [https://codeocean.com/capsule/2122579/tree/v1](https://codeocean.com/capsule/2122579/tree/v1)
 
+## The repo as a PyPi package ##
+[https://pypi.org/project/unavoids/](https://pypi.org/project/unavoids/)
+
 ## Citation ##
 Please, cite this work as:
 
